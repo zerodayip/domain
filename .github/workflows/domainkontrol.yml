@@ -3,7 +3,7 @@ name: Domain Link Güncelleyici
 on:
   schedule:
     - cron: "0 */4 * * *"  # Her 4 saatte bir
-  workflow_dispatch:       # manuel tetikleme
+  workflow_dispatch:       # Manuel tetikleme
 
 jobs:
   update:
@@ -55,10 +55,14 @@ jobs:
                   print(f"{domain_name}\n❌ Domain kapanmış olabilir, yönlendirme veya domaine erişim yok.\nKontrol edilmesi gerekiyor.\nURL: {url}\n")
                   continue
 
-              if final.rstrip("/") != url.rstrip("/"):
+              # Slash normalize et
+              normalized_final = final.rstrip("/")
+              normalized_url = url.rstrip("/")
+
+              if normalized_final != normalized_url:
                   with open(path, "w", encoding="utf-8") as f:
-                      f.write(final + "\n")
-                  print(f"{domain_name}\n🔀 Domain yönlendirmesi bulundu.\nURL: {url} → {final} (txt dosyası güncellendi)\n")
+                      f.write(normalized_final + "\n")
+                  print(f"{domain_name}\n🔀 Domain yönlendirmesi bulundu.\nURL: {url} → {normalized_final} (txt dosyası güncellendi)\n")
                   changed_files.append(fname)
               else:
                   print(f"{domain_name}\n✅ Domain hala geçerlidir.\nURL: {url}\n")
@@ -74,9 +78,6 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
-          while IFS= read -r file; do
-            git add "$file"
-            git commit -m "Domain güncellendi: $file"
-          done < changed_files.txt
-
+          git add $(cat changed_files.txt)
+          git commit -m "Domain linkleri güncellendi"
           git push
