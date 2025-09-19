@@ -1,0 +1,58 @@
+name: Run Hesap Kontrol
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 21 * * *"
+    
+jobs:
+  run-hesapkontrol:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Cache Public Repo
+        uses: actions/cache@v3
+        with:
+          path: public_repo
+          key: public-repo-${{ github.sha }}
+          restore-keys: |
+            public-repo-
+
+      - name: Checkout Public Repo
+        if: steps.cache.outputs.cache-hit != 'true'
+        uses: actions/checkout@v3
+        with:
+          path: public_repo
+          fetch-depth: 0
+          ref: main
+
+      - name: Update Public Repo if Cached
+        if: steps.cache.outputs.cache-hit == 'true'
+        run: |
+          cd public_repo
+          git pull origin main
+
+      - name: Cache pip
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Clone Private Py Repo
+        run: |
+          git clone https://x-access-token:${{ secrets.GH_TOKEN }}@github.com/zerodayip/Py.git private_py
+
+      - name: Install Python Dependencies
+        run: |
+          pip install --upgrade pip
+          pip install requests
+
+      - name: Run Anizm Script
+        run: python private_py/proxyhesapları/hesapkontol.py
