@@ -54,5 +54,5 @@ jobs:
           pip install --upgrade pip
           pip install requests
 
-      - name: Run Anizm Script
+      - name: Run HESAP KONTROL Script
         run: python private_py/proxyhesapları/hesapkontol.py
