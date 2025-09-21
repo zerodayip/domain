@@ -38,7 +38,8 @@ jobs:
                   return None
 
           for fname in os.listdir("."):
-              if not fname.endswith(".txt"):
+              # hesapkontrol.txt dosyasını atla
+              if not fname.endswith(".txt") or fname == "hesapkontrol.txt":
                   continue
 
               path = os.path.join(".", fname)
