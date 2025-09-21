@@ -1,51 +1,36 @@
-name: Run Hesap Kontrol
+name: Run HESAP KONTROL
 
 on:
   workflow_dispatch:
-  schedule:
-    - cron: '0 */6 * * *'  # Her 6 saatte bir çalışır
 
 jobs:
   run-hesapkontrol:
     runs-on: ubuntu-latest
 
+    env:
+      GH_TOKEN: ${{ secrets.GH_TOKEN }}
+
     steps:
-      - name: Checkout Public Repo
-        uses: actions/checkout@v3
+      - name: Checkout This Repo
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
           ref: main
 
-      - name: Cache pip
-        uses: actions/cache@v3
-        with:
-          path: ~/.cache/pip
-          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
-          restore-keys: |
-            ${{ runner.os }}-pip-
-
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.10'
+          python-version: '3.x'
 
       - name: Clone Private Py Repo
         run: |
           git clone https://x-access-token:${{ secrets.GH_TOKEN }}@github.com/zerodayip/Py.git private_py
 
-      - name: Install Python Dependencies
+      - name: Install Dependencies
         run: |
-          pip install --upgrade pip
+          python -m pip install --upgrade pip
           pip install requests
 
-      - name: Run HESAP KONTROL Script
-        run: python private_py/proxyhesapları/hesapkontrol.py
+      - name: Run Hesap Kontrol Script
+        run: python private_py/proxyhesapları/hesapkontol.py
 
-      - name: Commit hesapkontrol.txt
-        run: |
-          git config user.name "GitHub Actions"
-          git config user.email "actions@github.com"
-          git pull --rebase origin main || echo "Pull yapılamadı"
-          git add hesapkontrol.txt || echo "hesapkontrol yok"
-          git diff --cached --quiet || git commit -m "Hesap Kontrol güncellendi [auto]"
-          git push origin main
