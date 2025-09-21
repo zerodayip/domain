@@ -3,7 +3,7 @@ name: Run HESAP KONTROL
 on:
   workflow_dispatch:
   schedule:
-    - cron: "0 */5 * * *"  # Her 5 saatte bir
+    - cron: "0 */2 * * *"  # Her 2 saatte bir
 
 jobs:
   run-hesapkontrol:
