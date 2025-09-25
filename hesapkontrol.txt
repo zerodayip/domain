@@ -1,5 +1,5 @@
-25.09.2025 19:18
+25.09.2025 21:22
 
 PROXY1 -  BOX : 79.37 GB kullanıldı.
-PROXY2 - 5YNW : 0.00 GB kullanıldı.
+PROXY2 - 5YNW : 0.01 GB kullanıldı.
 PROXY3 - JG64 : 12.85 GB kullanıldı.
