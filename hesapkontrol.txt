@@ -1,6 +1,6 @@
-12.10.2025 21:19
+12.10.2025 23:15
 
 PROXY1 -    BOX : 0.01 GB kullanıldı.
-PROXY3 -   JG64 : 36.17 GB kullanıldı.
+PROXY3 -   JG64 : 36.54 GB kullanıldı.
 PROXY2 -   5YNW : 0.01 GB kullanıldı.
 PROXY4 - XTREAM : 0.05 GB kullanıldı.
