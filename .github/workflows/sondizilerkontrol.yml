@@ -1,4 +1,4 @@
-name: Dizi Scraper
+name: 3 Sitenin Son Eklenen Dizilerini Kontrol Etme 
 
 on:
   schedule:
