@@ -1,0 +1,115 @@
+name: Dizi Scraper
+
+on:
+  schedule:
+    # Her 6 saatte bir çalışacak
+    - cron: "0 */6 * * *"
+  workflow_dispatch:
+
+jobs:
+  scrape:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Python'u Kur
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Gerekli Kütüphaneleri Yükle
+        run: |
+          pip install requests beautifulsoup4
+
+      - name: Scraper'ı Çalıştır
+        run: |
+          import requests
+          from bs4 import BeautifulSoup
+
+          # ——————————————————————————————
+          # 1. DIZI20.LIFE domaini al
+          domain_url1 = "https://raw.githubusercontent.com/zerodayip/domain/refs/heads/main/dizilife.txt"
+          domain_response1 = requests.get(domain_url1)
+          domain1 = domain_response1.text.strip()
+          url1 = f"{domain1}/diziler?sort=newest"
+
+          headers = {
+              "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+                            "AppleWebKit/537.36 (KHTML, like Gecko) "
+                            "Chrome/128.0.0.0 Safari/537.36",
+              "Referer": domain1
+          }
+
+          response1 = requests.get(url1, headers=headers)
+          if response1.status_code == 200:
+              soup1 = BeautifulSoup(response1.text, "html.parser")
+              cards = soup1.find_all("div", class_="content-card")
+              print(f"🌐 {domain1}")
+              for card in cards:
+                  img = card.find("img")
+                  meta = card.find("div", class_="card-meta")
+                  if img and meta:
+                      title = img.get("alt", "Bilinmiyor").strip().upper()
+                      year_span = meta.find("span")
+                      year = year_span.get_text(strip=True) if year_span else "Bilinmiyor"
+                      print(f"{title} - {year}")
+              print("---------------------")
+          else:
+              print(f"{domain1} isteği başarısız:", response1.status_code)
+
+          # ——————————————————————————————
+          # 2. FILMHANE.ONLINE domaini al
+          domain_url2 = "https://raw.githubusercontent.com/zerodayip/domain/refs/heads/main/filmhane.txt"
+          domain_response2 = requests.get(domain_url2)
+          domain2 = domain_response2.text.strip()
+          url2 = f"{domain2}/kesfet/eyJ0eXBlIjoic2VyaWVzIn0="
+          headers["Referer"] = domain2
+          response2 = requests.get(url2, headers=headers)
+          if response2.status_code == 200:
+              soup2 = BeautifulSoup(response2.text, "html.parser")
+              results = soup2.find_all("div", class_="filter-result-box")
+              print(f"🌐 {domain2}")
+              for item in results:
+                  title_tag = item.find("h2")
+                  year = "Bilinmiyor"
+                  bottom = item.find("div", class_="filter-result-box-bottom")
+                  if bottom:
+                      p = bottom.find("p")
+                      if p:
+                          year = p.get_text(strip=True)
+                  if title_tag:
+                      title = title_tag.get_text(strip=True).upper()
+                      print(f"{title} - {year}")
+              print("---------------------")
+          else:
+              print(f"{domain2} isteği başarısız:", response2.status_code)
+
+          # ——————————————————————————————
+          # 3. DIZIYIIZLE domaini al
+          domain_url3 = "https://raw.githubusercontent.com/zerodayip/domain/refs/heads/main/diziyiizle.txt"
+          domain_response3 = requests.get(domain_url3)
+          domain3 = domain_response3.text.strip()
+          url3 = f"{domain3}/kesfet-izle/"
+          headers = {
+              "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+                            "AppleWebKit/537.36 (KHTML, like Gecko) "
+                            "Chrome/128.0.0.0 Safari/537.36",
+              "Referer": domain3
+          }
+          response3 = requests.get(url3, headers=headers)
+          if response3.status_code == 200:
+              soup3 = BeautifulSoup(response3.text, "html.parser")
+              print(f"🌐 {domain3}")
+              cards = soup3.select("#seriesGrid a")
+              for card in cards:
+                  title_tag = card.find("img")
+                  title = title_tag.get("alt", "Bilinmiyor").strip().upper() if title_tag else "BİLİNMİYOR"
+                  year_tag = card.find("div", class_="flex items-center space-x-2 text-sm text-gray-400")
+                  year = "BİLİNMİYOR"
+                  if year_tag:
+                      span = year_tag.find("span")
+                      if span:
+                          year = span.get_text(strip=True)
+                  print(f"{title} - {year}")
+              print("---------------------")
+          else:
+              print(f"{domain3} isteği başarısız:", response3.status_code)
