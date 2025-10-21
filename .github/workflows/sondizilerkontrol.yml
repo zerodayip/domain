@@ -22,6 +22,7 @@ jobs:
 
       - name: Scraper'ı Çalıştır
         run: |
+          python - <<EOF
           import requests
           from bs4 import BeautifulSoup
 
@@ -113,3 +114,4 @@ jobs:
               print("---------------------")
           else:
               print(f"{domain3} isteği başarısız:", response3.status_code)
+          EOF
