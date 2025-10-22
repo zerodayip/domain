@@ -2,7 +2,7 @@ name: Domain Link Güncelleyici
 
 on:
   schedule:
-    - cron: "0 */4 * * *"  # Her 4 saatte bir
+    - cron: "0 */1 * * *"  # Her saatte bir
   workflow_dispatch:       # Manuel tetikleme
 
 jobs:
