@@ -1,0 +1,28 @@
+name: Log Triggered from Cloudflare Worker
+
+on:
+  workflow_dispatch:
+    inputs:
+      username:
+        description: "Kullanıcı adı"
+        required: true
+        type: string
+      ip:
+        description: "IP adresi"
+        required: true
+        type: string
+      timestamp:
+        description: "Unix timestamp"
+        required: true
+        type: string
+
+jobs:
+  log_job:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Bilgi Yazdır
+        run: |
+          echo "Kullanıcı: ${{ inputs.username }}"
+          echo "IP: ${{ inputs.ip }}"
+          echo "Zaman: ${{ inputs.timestamp }}"
+      # buraya istersen json yazma, telegram gönderme, vs ekleyebilirsin
