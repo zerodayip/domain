@@ -1,4 +1,4 @@
-name: Run HESAP KONTROL
+name: Run Hesap ve Calisan Kontrol Etme 
 
 on:
   workflow_dispatch:
