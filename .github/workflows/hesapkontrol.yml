@@ -3,7 +3,7 @@ name: Run HESAP KONTROL
 on:
   workflow_dispatch:
   schedule:
-    - cron: "0 */2 * * *"  # Her 2 saatte bir
+    - cron: "0 */12 * * *"  # Her 12 saatte bir
 
 jobs:
   run-hesapkontrol:
@@ -35,6 +35,9 @@ jobs:
 
       - name: Run Hesap Kontrol Script
         run: python private_py/proxyhesapları/hesapkontol.py
+
+      - name: Run Calisan Kontrol Script
+        run: python private_py/proxyhesapları/calisankontrol.py
 
       - name: Commit hesapkontrol.txt
         run: |
