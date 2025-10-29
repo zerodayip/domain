@@ -1,4 +1,4 @@
-29.10.2025 15:33
+29.10.2025 23:37
 
 PROXY1 -    BOX : 0.03 GB kullanıldı.
 PROXY3 -   ZWND : 1.43 GB kullanıldı.
