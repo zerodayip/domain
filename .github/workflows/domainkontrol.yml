@@ -10,23 +10,17 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # --------------------------
       - name: Checkout repo
         uses: actions/checkout@v3
-        with:
-          fetch-depth: 0  # Push için tam geçmiş
 
-      # --------------------------
       - name: Setup Python
         uses: actions/setup-python@v4
         with:
           python-version: "3.x"
 
-      # --------------------------
       - name: Install dependencies
         run: pip install requests
 
-      # --------------------------
       - name: Domain linklerini kontrol et ve güncelle
         id: updater
         run: |
@@ -44,6 +38,7 @@ jobs:
                   return None
 
           for fname in os.listdir("."):
+              # hesapkontrol.txt dosyasını atla
               if not fname.endswith(".txt") or fname == "hesapkontrol.txt":
                   continue
 
@@ -58,9 +53,10 @@ jobs:
               domain_name = os.path.splitext(fname)[0].capitalize()
 
               if final is None:
-                  print(f"{domain_name}\n❌ Domain kapanmış olabilir, erişim yok.\nURL: {url}\n")
+                  print(f"{domain_name}\n❌ Domain kapanmış olabilir, yönlendirme veya domaine erişim yok.\nKontrol edilmesi gerekiyor.\nURL: {url}\n")
                   continue
 
+              # Slash normalize et
               normalized_final = final.rstrip("/")
               normalized_url = url.rstrip("/")
 
@@ -72,43 +68,17 @@ jobs:
               else:
                   print(f"{domain_name}\n✅ Domain hala geçerlidir.\nURL: {url}\n")
 
-          # Environment file ile output ayarla (set-output yerine)
-          changed_files_str = ",".join(changed_files)
-          with open(os.environ['GITHUB_OUTPUT'], 'a') as fh:
-              fh.write(f"changed_files={changed_files_str}\n")
+          if changed_files:
+              with open("changed_files.txt", "w") as f:
+                  f.write("\n".join(changed_files))
         shell: python
 
-      # --------------------------
       - name: Commit ve push değişen dosyalar
+        if: hashFiles('changed_files.txt') != ''
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
-          git add .
-          if git diff --cached --quiet; then
-            echo "Değişiklik yok."
-          else
-            git commit -m "Domain linkleri güncellendi"
-            git push
-
-      # --------------------------
-      - name: Trigger mapped workflows
-        shell: bash
-        run: |
-          declare -A file_map
-          # Dosya -> workflow API URL eşlemesi
-          file_map[dizigom.txt]="https://api.github.com/repos/zerodayip/dizigom/dispatches"
-      
-          # Python step output'undan değişen dosyaları al
-          for f in $(echo "${{ steps.updater.outputs.changed_files }}" | tr ',' ' '); do
-            url=${file_map[$f]}
-            if [ -n "$url" ]; then
-              echo "Tetikleniyor: $f -> $url"
-              curl -X POST \
-                -H "Accept: application/vnd.github+json" \
-                -H "Authorization: token ${{ secrets.GH_TOKEN }}" \
-                -d '{"event_type":"domain-update","client_payload":{"branch":"main"}}' \
-                "$url"
-            fi
-          done
-
+          git add $(cat changed_files.txt)
+          git commit -m "Domain linkleri güncellendi"
+          git push
