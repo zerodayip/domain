@@ -12,6 +12,8 @@ jobs:
     steps:
       - name: Checkout repo
         uses: actions/checkout@v3
+        with:
+          fetch-depth: 0  # Push için tam geçmiş
 
       - name: Setup Python
         uses: actions/setup-python@v4
@@ -52,7 +54,7 @@ jobs:
               domain_name = os.path.splitext(fname)[0].capitalize()
 
               if final is None:
-                  print(f"{domain_name}\n❌ Domain kapanmış olabilir, yönlendirme veya domaine erişim yok.\nKontrol edilmesi gerekiyor.\nURL: {url}\n")
+                  print(f"{domain_name}\n❌ Domain kapanmış olabilir, erişim yok.\nURL: {url}\n")
                   continue
 
               normalized_final = final.rstrip("/")
@@ -66,21 +68,23 @@ jobs:
               else:
                   print(f"{domain_name}\n✅ Domain hala geçerlidir.\nURL: {url}\n")
 
-          # Environment file ile output ayarla (set-output deprecated)
+          # Environment file ile output ayarla
           changed_files_str = ",".join(changed_files)
           with open(os.environ['GITHUB_OUTPUT'], 'a') as fh:
               fh.write(f"changed_files={changed_files_str}\n")
         shell: python
 
       - name: Commit ve push değişen dosyalar
-        if: hashFiles('changed_files.txt') != ''
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
-          git add $(cat changed_files.txt)
-          git commit -m "Domain linkleri güncellendi"
-          git push
+          git add .
+          if git diff --cached --quiet; then
+            echo "Değişiklik yok."
+          else
+            git commit -m "Domain linkleri güncellendi"
+            git push
 
       - name: Trigger mapped workflows
         run: |
@@ -88,9 +92,8 @@ jobs:
           declare -A file_map
           # Dosya -> workflow API URL eşlemesi
           file_map[dizigom.txt]="https://api.github.com/repos/zerodayip/dizigom/dispatches"
-          # İstersen başka dosya -> workflow ekleyebilirsin
-          # file_map[digerdosya.txt]="https://api.github.com/repos/xyz/other/dispatches"
 
+          # Çıktıdaki değişen dosyaları al
           for f in $(echo "${{ steps.updater.outputs.changed_files }}" | tr ',' ' '); do
             url=${file_map[$f]}
             if [ -n "$url" ]; then
