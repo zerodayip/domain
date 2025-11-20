@@ -1,6 +1,6 @@
 name: Gizli Repo Domain Güncelleme
 
-xxon:
+on:
   push:
     branches:
       - main
