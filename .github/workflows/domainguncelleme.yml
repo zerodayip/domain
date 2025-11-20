@@ -1,6 +1,6 @@
 name: Gizli Repo Domain Güncelleme
 
-on:
+xxon:
   push:
     paths:
       - dizigom.txt  # Sadece bu dosya değiştiğinde tetiklenecek
