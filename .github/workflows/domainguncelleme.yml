@@ -1,9 +1,6 @@
 name: Gizli Repo Domain Güncelleme
 
 on:
-  push:
-    paths:
-      - dizigom.txt
   workflow_dispatch:
 
 jobs:
