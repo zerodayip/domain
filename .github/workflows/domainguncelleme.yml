@@ -2,8 +2,8 @@ name: Gizli Repo Domain Güncelleme
 
 on:
   push:
-    branches:
-      - main
+    paths:
+      - dizigom.txt
 
 jobs:
   trigger-private:
