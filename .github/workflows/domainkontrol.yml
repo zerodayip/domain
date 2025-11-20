@@ -98,9 +98,7 @@ jobs:
           declare -A file_map
           # Dosya -> workflow API URL eşlemesi
           file_map[dizigom.txt]="https://api.github.com/repos/zerodayip/dizigom/dispatches"
-          # İstersen başka dosya -> workflow ekleyebilirsin
-          # file_map[digerdosya.txt]="https://api.github.com/repos/xyz/other/dispatches"
-
+      
           # Python step output'undan değişen dosyaları al
           for f in $(echo "${{ steps.updater.outputs.changed_files }}" | tr ',' ' '); do
             url=${file_map[$f]}
@@ -113,3 +111,4 @@ jobs:
                 "$url"
             fi
           done
+
