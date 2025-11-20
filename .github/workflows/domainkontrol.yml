@@ -38,7 +38,6 @@ jobs:
                   return None
 
           for fname in os.listdir("."):
-              # hesapkontrol.txt dosyasını atla
               if not fname.endswith(".txt") or fname == "hesapkontrol.txt":
                   continue
 
@@ -56,7 +55,6 @@ jobs:
                   print(f"{domain_name}\n❌ Domain kapanmış olabilir, yönlendirme veya domaine erişim yok.\nKontrol edilmesi gerekiyor.\nURL: {url}\n")
                   continue
 
-              # Slash normalize et
               normalized_final = final.rstrip("/")
               normalized_url = url.rstrip("/")
 
@@ -68,9 +66,8 @@ jobs:
               else:
                   print(f"{domain_name}\n✅ Domain hala geçerlidir.\nURL: {url}\n")
 
-          if changed_files:
-              with open("changed_files.txt", "w") as f:
-                  f.write("\n".join(changed_files))
+          # Değişen dosyaları output olarak ayarla
+          print(f"::set-output name=changed_files::{','.join(changed_files)}")
         shell: python
 
       - name: Commit ve push değişen dosyalar
@@ -82,3 +79,24 @@ jobs:
           git add $(cat changed_files.txt)
           git commit -m "Domain linkleri güncellendi"
           git push
+
+      - name: Trigger mapped workflows
+        run: |
+          #!/bin/bash
+          declare -A file_map
+          # Map: dosya => workflow URL
+          file_map[dizigom.txt]="https://api.github.com/repos/zerodayip/domain/dispatches"
+          # İstersen başka dosya -> workflow eşlemeleri ekleyebilirsin
+          # file_map[digerdosya.txt]="https://api.github.com/repos/xyz/other/dispatches"
+
+          for f in $(echo "${{ steps.updater.outputs.changed_files }}" | tr ',' ' '); do
+            url=${file_map[$f]}
+            if [ -n "$url" ]; then
+              echo "Tetikleniyor: $f -> $url"
+              curl -X POST \
+                -H "Accept: application/vnd.github+json" \
+                -H "Authorization: token ${{ secrets.GH_TOKEN }}" \
+                -d '{"event_type":"domain-update"}' \
+                "$url"
+            fi
+          done
