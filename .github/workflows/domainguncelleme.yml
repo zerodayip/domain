@@ -7,10 +7,19 @@ jobs:
   trigger-private:
     runs-on: ubuntu-latest
     steps:
-      - name: Trigger private repo workflow
+      - name: Trigger private repo 1 workflow
         uses: peter-evans/repository-dispatch@v2
         with:
-          token: ${{ secrets.GH_TOKEN }}           # Private repo’ya erişim izni olan token
-          repository: zerodayip/dizigom           # Private repo
-          event-type: trigger-domain-workflow      # Private repo’da dinlenecek event type
+          token: ${{ secrets.GH_TOKEN }}
+          repository: zerodayip/dizigom
+          event-type: trigger-domain-workflow
           client-payload: '{"source":"public-repo"}'
+
+      - name: Trigger private repo 2 workflow
+        uses: peter-evans/repository-dispatch@v2
+        with:
+          token: ${{ secrets.GH_TOKEN }}
+          repository: zerodayip/diziyo
+          event-type: trigger-domain-workflow
+          client-payload: '{"source":"public-repo"}'
+
