@@ -4,6 +4,7 @@ on:
   push:
     paths:
       - dizigom.txt
+  workflow_dispatch:
 
 jobs:
   trigger-private:
