@@ -23,3 +23,20 @@ jobs:
           event-type: trigger-domain-workflow
           client-payload: '{"source":"public-repo"}'
 
+      - name: Trigger private repo 3 workflow
+        uses: peter-evans/repository-dispatch@v2
+        with:
+          token: ${{ secrets.GH_TOKEN }}
+          repository: zerodayip/anizm
+          event-type: trigger-domain-workflow
+          client-payload: '{"source":"public-repo"}'
+
+      - name: Trigger private repo 4 workflow
+        uses: peter-evans/repository-dispatch@v2
+        with:
+          token: ${{ secrets.GH_TOKEN }}
+          repository: zerodayip/animenosub
+          event-type: trigger-domain-workflow
+          client-payload: '{"source":"public-repo"}'
+
+
