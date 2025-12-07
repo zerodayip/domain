@@ -3,7 +3,7 @@ name: Run Hesap ve Calisan Kontrol Etme
 on:
   workflow_dispatch:
   schedule:
-    - cron: "0 */12 * * *"  # Her 12 saatte bir
+    - cron: "0 */5 * * *"  # Her 5 saatte bir
 
 jobs:
   run-hesapkontrol:
