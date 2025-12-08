@@ -24,87 +24,87 @@ jobs:
           python - <<EOF
           import requests
           from bs4 import BeautifulSoup
-
+      
+          def safe_get(url, headers):
+              try:
+                  return requests.get(url, headers=headers, timeout=10)
+              except requests.exceptions.RequestException:
+                  return None
+      
+      
           # ----------------------------------------------------
           # 1) DIZIPALL
+          print("\n=== DIZIPALL ===")
           domain_url = "https://raw.githubusercontent.com/zerodayip/domain/refs/heads/main/dizipall.txt"
           domain = requests.get(domain_url).text.strip()
-
+      
           url = f"{domain}/kesfet"
           headers = {
-              "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
-                            "AppleWebKit/537.36 (KHTML, like Gecko) "
-                            "Chrome/128.0.0.0 Safari/537.36",
+              "User-Agent": "Mozilla/5.0",
               "Referer": domain
           }
-
-          response = requests.get(url, headers=headers)
-
-          if response.status_code == 200:
+      
+          response = safe_get(url, headers)
+      
+          if response and response.status_code == 200:
               soup = BeautifulSoup(response.text, "html.parser")
               print(f"🌐 {domain}")
-
+      
               items = soup.find_all("div", class_="filter-result-box")
-
+      
               for item in items:
-                  # ➤ Başlık
-                  h2 = item.find("h2")
-                  title = h2.get_text(strip=True).upper() if h2 else "BİLİNMİYOR"
-
-                  # ➤ Yapım yılı (bottom içindeki ilk p)
+                  title = item.find("h2").get_text(strip=True).upper() if item.find("h2") else "BİLİNMİYOR"
+      
                   year = "BİLİNMİYOR"
                   bottom = item.find("div", class_="filter-result-box-bottom")
                   if bottom:
-                      year_li = bottom.find("p")
-                      if year_li:
-                          year = year_li.get_text(strip=True)
-
+                      p = bottom.find("p")
+                      if p:
+                          year = p.get_text(strip=True)
+      
                   print(f"{title} - {year}")
-
+      
               print("---------------------")
           else:
-              print(f"{domain} isteği başarısız:", response.status_code)
-
-
-
+              print(f"❌ {domain} ulaşılamıyor (site kapanmış olabilir).")
+      
+      
           # ----------------------------------------------------
           # 2) DIZIYIIZLE
+          print("\n=== DIZIYIIZLE ===")
           domain_url2 = "https://raw.githubusercontent.com/zerodayip/domain/refs/heads/main/diziyiizle.txt"
           domain2 = requests.get(domain_url2).text.strip()
-
+      
           url2 = f"{domain2}/kesfet-izle/"
           headers2 = {
-              "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
-                            "AppleWebKit/537.36 (KHTML, like Gecko) "
-                            "Chrome/128.0.0.0 Safari/537.36",
+              "User-Agent": "Mozilla/5.0",
               "Referer": domain2
           }
-
-          response2 = requests.get(url2, headers=headers2)
-
-          if response2.status_code == 200:
+      
+          response2 = safe_get(url2, headers2)
+      
+          if response2 and response2.status_code == 200:
               soup2 = BeautifulSoup(response2.text, "html.parser")
               print(f"🌐 {domain2}")
-
+      
               cards = soup2.select("#seriesGrid a")
-
+      
               for card in cards:
-                  # ➤ Başlık
-                  title_tag = card.find("img")
-                  title = title_tag.get("alt", "BİLİNMİYOR").strip().upper() if title_tag else "BİLİNMİYOR"
-
-                  # ➤ Yapım yılı
+                  img = card.find("img")
+                  title = img.get("alt", "BİLİNMİYOR").upper() if img else "BİLİNMİYOR"
+      
                   year = "BİLİNMİYOR"
                   year_tag = card.find("div", class_="flex items-center space-x-2 text-sm text-gray-400")
                   if year_tag:
                       span = year_tag.find("span")
                       if span:
                           year = span.get_text(strip=True)
-
+      
                   print(f"{title} - {year}")
-
+      
               print("---------------------")
           else:
-              print(f"{domain2} isteği başarısız:", response2.status_code)
-
+              print(f"❌ {domain2} ulaşılamıyor (site kapanmış olabilir).")
+      
           EOF
+
