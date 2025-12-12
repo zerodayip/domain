@@ -22,10 +22,9 @@ jobs:
         run: pip install requests
 
       - name: Domain linklerini kontrol et ve güncelle
-        shell: python
+        id: updater
         run: |
-          import os
-          import requests
+          import os, requests
 
           changed_files = []
 
@@ -39,7 +38,8 @@ jobs:
                   return None
 
           for fname in os.listdir("."):
-              if not fname.endswith(".txt") or fname in ["hesapkontrol.txt", "hdfilmcehennemi.txt"]:
+              # hesapkontrol.txt dosyasını atla
+              if not fname.endswith(".txt") or fname == "hesapkontrol.txt":
                   continue
 
               path = os.path.join(".", fname)
@@ -53,9 +53,10 @@ jobs:
               domain_name = os.path.splitext(fname)[0].capitalize()
 
               if final is None:
-                  print(f"{domain_name}\n❌ Domain kapanmış olabilir, yönlendirme veya domaine erişim yok.\nURL: {url}\n")
+                  print(f"{domain_name}\n❌ Domain kapanmış olabilir, yönlendirme veya domaine erişim yok.\nKontrol edilmesi gerekiyor.\nURL: {url}\n")
                   continue
 
+              # Slash normalize et
               normalized_final = final.rstrip("/")
               normalized_url = url.rstrip("/")
 
@@ -67,35 +68,17 @@ jobs:
               else:
                   print(f"{domain_name}\n✅ Domain hala geçerlidir.\nURL: {url}\n")
 
-          # hdfilmcehennemi kontrolü
-          hdfilmcehennemi_url = "https://hdfilmcehennemi.download/download/"
-          hdfilmcehennemi_final = resolve_final_url(hdfilmcehennemi_url)
-
-          if hdfilmcehennemi_final:
-              with open("hdfilmcehennemi.txt", "w", encoding="utf-8") as f:
-                  f.write(hdfilmcehennemi_final + "\n")
-              print(f"HDFilmCehennemi yönlendirmesi: {hdfilmcehennemi_url} → {hdfilmcehennemi_final} (hdfilmcehennemi.txt güncellendi)")
-              changed_files.append("hdfilmcehennemi.txt")
-          else:
-              print("HDFilmCehennemi URL erişilemedi veya yönlendirme tespit edilemedi.")
-
           if changed_files:
-              with open("changed_files.txt", "w", encoding="utf-8") as f:
+              with open("changed_files.txt", "w") as f:
                   f.write("\n".join(changed_files))
+        shell: python
 
       - name: Commit ve push değişen dosyalar
-        shell: bash
+        if: hashFiles('changed_files.txt') != ''
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
-          if [ -f changed_files.txt ]; then
-              files=$(cat changed_files.txt)
-              git add changed_files.txt $files
-          fi
-
-          if ! git diff --cached --quiet; then
-              git commit -m "Domain linkleri güncellendi"
-              git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git HEAD:main
-          else
-              echo "Değişiklik yok, commit yapılmadı."
+          git add $(cat changed_files.txt)
+          git commit -m "Domain linkleri güncellendi"
+          git push
