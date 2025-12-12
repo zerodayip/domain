@@ -1,7 +1,7 @@
-12.12.2025 23:19
+13.12.2025 01:12
 
 PROXY1 - BOX : 0.01 GB kullanıldı.
 PROXY2 - ZWND : 34.74 GB kullanıldı.
 PROXY3 - 5YNW : 0.01 GB kullanıldı.
 PROXY4 - FOZB : 0.14 GB kullanıldı.
-PROXY5 - XTREAM : 0.22 GB kullanıldı.
+PROXY5 - XTREAM : 0.23 GB kullanıldı.
