@@ -30,15 +30,15 @@ jobs:
 
           def resolve_final_url(url):
               try:
-                  r = requests.get(url, allow_redirects=True, timeout=10, stream=True)
+                  r = requests.get(url, allow_redirects=True, timeout=10)
                   final = r.url
                   r.close()
                   return final
               except requests.RequestException:
                   return None
 
+          # Mevcut txt dosyalarını kontrol et
           for fname in os.listdir("."):
-              # hesapkontrol.txt dosyasını atla
               if not fname.endswith(".txt") or fname == "hesapkontrol.txt":
                   continue
 
@@ -56,7 +56,6 @@ jobs:
                   print(f"{domain_name}\n❌ Domain kapanmış olabilir, yönlendirme veya domaine erişim yok.\nKontrol edilmesi gerekiyor.\nURL: {url}\n")
                   continue
 
-              # Slash normalize et
               normalized_final = final.rstrip("/")
               normalized_url = url.rstrip("/")
 
@@ -68,6 +67,19 @@ jobs:
               else:
                   print(f"{domain_name}\n✅ Domain hala geçerlidir.\nURL: {url}\n")
 
+          # 🔹 Yeni eklenen kısım: hdfilmcehennemi yönlendirmesini kontrol et
+          hdfilmcehennemi_url = "https://hdfilmcehennemi.download/download/"
+          hdfilmcehennemi_final = resolve_final_url(hdfilmcehennemi_url)
+
+          if hdfilmcehennemi_final:
+              with open("hdfilmcehennemi.txt", "w", encoding="utf-8") as f:
+                  f.write(hdfilmcehennemi_final + "\n")
+              print(f"HDFilmCehennemi yönlendirmesi: {hdfilmcehennemi_url} → {hdfilmcehennemi_final} (hdfilmcehennemi.txt güncellendi)")
+              changed_files.append("hdfilmcehennemi.txt")
+          else:
+              print("HDFilmCehennemi URL erişilemedi veya yönlendirme tespit edilemedi.")
+
+          # Değişen dosyaları kaydet
           if changed_files:
               with open("changed_files.txt", "w") as f:
                   f.write("\n".join(changed_files))
