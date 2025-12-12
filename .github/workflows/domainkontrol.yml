@@ -37,12 +37,9 @@ jobs:
               except requests.RequestException:
                   return None
 
-          # Atlanacak dosyalar listesi
-          ignore_files = ["hesapkontrol.txt", "hdfilmcehennemi.txt"]
-
           # Mevcut txt dosyalarını kontrol et
           for fname in os.listdir("."):
-              if not fname.endswith(".txt") or fname in ignore_files:
+              if not fname.endswith(".txt") or fname in ["hesapkontrol.txt", "hdfilmcehennemi.txt"]:  # eklemek istediğiniz dosyaları buraya ekleyin
                   continue
 
               path = os.path.join(".", fname)
@@ -56,7 +53,7 @@ jobs:
               domain_name = os.path.splitext(fname)[0].capitalize()
 
               if final is None:
-                  print(f"{domain_name}\n❌ Domain kapanmış olabilir veya erişim yok.\nURL: {url}\n")
+                  print(f"{domain_name}\n❌ Domain kapanmış olabilir, yönlendirme veya domaine erişim yok.\nKontrol edilmesi gerekiyor.\nURL: {url}\n")
                   continue
 
               normalized_final = final.rstrip("/")
@@ -65,12 +62,12 @@ jobs:
               if normalized_final != normalized_url:
                   with open(path, "w", encoding="utf-8") as f:
                       f.write(normalized_final + "\n")
-                  print(f"{domain_name}\n🔀 Yönlendirme bulundu.\nURL: {url} → {normalized_final} (txt dosyası güncellendi)\n")
+                  print(f"{domain_name}\n🔀 Domain yönlendirmesi bulundu.\nURL: {url} → {normalized_final} (txt dosyası güncellendi)\n")
                   changed_files.append(fname)
               else:
                   print(f"{domain_name}\n✅ Domain hala geçerlidir.\nURL: {url}\n")
 
-          # 🔹 HDFilmCehennemi özel kontrolü
+          # 🔹 hdfilmcehennemi kontrolü
           hdfilmcehennemi_url = "https://hdfilmcehennemi.download/download/"
           hdfilmcehennemi_final = resolve_final_url(hdfilmcehennemi_url)
 
@@ -89,12 +86,16 @@ jobs:
         shell: python
 
       - name: Commit ve push değişen dosyalar
-        if: hashFiles('changed_files.txt') != ''
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
           # Hem changed_files.txt hem de listedeki domain dosyalarını ekle
-          git add changed_files.txt $(cat changed_files.txt)
-          git commit -m "Domain linkleri güncellendi"
-          git push
+          git add changed_files.txt $(cat changed_files.txt || true)
+
+          # Sadece değişiklik varsa commit ve push yap
+          if ! git diff --cached --quiet; then
+            git commit -m "Domain linkleri güncellendi"
+            git push
+          else
+            echo "Değişiklik yok, commit yapılmadı."
