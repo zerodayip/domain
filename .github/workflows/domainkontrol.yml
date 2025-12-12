@@ -37,9 +37,12 @@ jobs:
               except requests.RequestException:
                   return None
 
+          # Atlanacak dosyalar listesi
+          ignore_files = ["hesapkontrol.txt", "hdfilmcehennemi.txt"]
+
           # Mevcut txt dosyalarını kontrol et
           for fname in os.listdir("."):
-              if not fname.endswith(".txt") or fname == "hesapkontrol.txt":
+              if not fname.endswith(".txt") or fname in ignore_files:
                   continue
 
               path = os.path.join(".", fname)
@@ -53,7 +56,7 @@ jobs:
               domain_name = os.path.splitext(fname)[0].capitalize()
 
               if final is None:
-                  print(f"{domain_name}\n❌ Domain kapanmış olabilir, yönlendirme veya domaine erişim yok.\nKontrol edilmesi gerekiyor.\nURL: {url}\n")
+                  print(f"{domain_name}\n❌ Domain kapanmış olabilir veya erişim yok.\nURL: {url}\n")
                   continue
 
               normalized_final = final.rstrip("/")
@@ -62,12 +65,12 @@ jobs:
               if normalized_final != normalized_url:
                   with open(path, "w", encoding="utf-8") as f:
                       f.write(normalized_final + "\n")
-                  print(f"{domain_name}\n🔀 Domain yönlendirmesi bulundu.\nURL: {url} → {normalized_final} (txt dosyası güncellendi)\n")
+                  print(f"{domain_name}\n🔀 Yönlendirme bulundu.\nURL: {url} → {normalized_final} (txt dosyası güncellendi)\n")
                   changed_files.append(fname)
               else:
                   print(f"{domain_name}\n✅ Domain hala geçerlidir.\nURL: {url}\n")
 
-          # 🔹 hdfilmcehennemi kontrolü
+          # 🔹 HDFilmCehennemi özel kontrolü
           hdfilmcehennemi_url = "https://hdfilmcehennemi.download/download/"
           hdfilmcehennemi_final = resolve_final_url(hdfilmcehennemi_url)
 
