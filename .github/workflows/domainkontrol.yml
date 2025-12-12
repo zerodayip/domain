@@ -37,22 +37,27 @@ jobs:
 
           changes_made = False
 
-          # Öncelikle hdfilmcehennemi.txt için özel kontrol
+          # --- Özel dosya kontrolü: hdfilmcehennemi.txt ---
           special_file = "hdfilmcehennemi.txt"
           special_url = "https://hdfilmcehennemi.download/download/"
           if os.path.exists(special_file):
               final = resolve_final_url(special_url)
               if final is not None:
                   normalized_final = final.rstrip("/")
-                  with open(special_file, "w", encoding="utf-8") as f:
-                      f.write(normalized_final + "\n")
-                  print(f"Hdfilmcehennemi\n🔀 Özel site kontrolü yapıldı.\nURL: {special_url} → {normalized_final} ({special_file} güncellendi)\n")
-                  subprocess.run(["git", "add", special_file])
-                  changes_made = True
+                  with open(special_file, "r", encoding="utf-8") as f:
+                      current_content = f.read().strip()
+                  if normalized_final != current_content:
+                      with open(special_file, "w", encoding="utf-8") as f:
+                          f.write(normalized_final + "\n")
+                      print(f"Hdfilmcehennemi\n🔀 Özel site kontrolü yapıldı.\nURL: {special_url} → {normalized_final} ({special_file} güncellendi)\n")
+                      subprocess.run(["git", "add", special_file])
+                      changes_made = True
+                  else:
+                      print(f"Hdfilmcehennemi\n✅ URL değişmemiş. Commit atılmadı.\n")
               else:
                   print(f"Hdfilmcehennemi\n❌ Özel siteye erişilemedi veya yönlendirme yok.\nURL: {special_url}\n")
 
-          # Diğer tüm txt dosyalar için normal kontrol
+          # --- Diğer tüm txt dosyalar için normal kontrol ---
           for fname in os.listdir("."):
               if not fname.endswith(".txt") or fname in ["hesapkontrol.txt", special_file]:
                   continue
@@ -83,7 +88,7 @@ jobs:
               else:
                   print(f"{domain_name}\n✅ Domain hala geçerlidir.\nURL: {url}\n")
 
-          # Commit ve push sadece değişiklik varsa
+          # --- Commit ve push işlemi yalnızca değişiklik varsa ---
           if changes_made:
               subprocess.run(["git", "config", "user.name", "github-actions[bot]"])
               subprocess.run(["git", "config", "user.email", "41898282+github-actions[bot]@users.noreply.github.com"])
