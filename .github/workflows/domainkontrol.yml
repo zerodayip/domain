@@ -37,7 +37,6 @@ jobs:
               except requests.RequestException:
                   return None
 
-          # Mevcut txt dosyalarını kontrol et
           for fname in os.listdir("."):
               if not fname.endswith(".txt") or fname in ["hesapkontrol.txt", "hdfilmcehennemi.txt"]:
                   continue
@@ -67,7 +66,6 @@ jobs:
               else:
                   print(f"{domain_name}\n✅ Domain hala geçerlidir.\nURL: {url}\n")
 
-          # 🔹 hdfilmcehennemi kontrolü
           hdfilmcehennemi_url = "https://hdfilmcehennemi.download/download/"
           hdfilmcehennemi_final = resolve_final_url(hdfilmcehennemi_url)
 
@@ -79,7 +77,6 @@ jobs:
           else:
               print("HDFilmCehennemi URL erişilemedi veya yönlendirme tespit edilemedi.")
 
-          # Değişen dosyaları kaydet
           if changed_files:
               with open("changed_files.txt", "w", encoding="utf-8") as f:
                   f.write("\n".join(changed_files))
@@ -95,7 +92,6 @@ jobs:
             git add changed_files.txt $files
           fi
 
-          # Sadece değişiklik varsa commit ve push
           if ! git diff --cached --quiet; then
             git commit -m "Domain linkleri güncellendi"
             git push
