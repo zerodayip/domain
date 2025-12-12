@@ -22,7 +22,7 @@ jobs:
         run: pip install requests
 
       - name: Domain linklerini kontrol et ve güncelle
-        id: updater
+        shell: python
         run: |
           import os, requests
 
@@ -39,7 +39,7 @@ jobs:
 
           # Mevcut txt dosyalarını kontrol et
           for fname in os.listdir("."):
-              if not fname.endswith(".txt") or fname in ["hesapkontrol.txt", "hdfilmcehennemi.txt"]:  # eklemek istediğiniz dosyaları buraya ekleyin
+              if not fname.endswith(".txt") or fname in ["hesapkontrol.txt", "hdfilmcehennemi.txt"]:
                   continue
 
               path = os.path.join(".", fname)
@@ -83,17 +83,19 @@ jobs:
           if changed_files:
               with open("changed_files.txt", "w", encoding="utf-8") as f:
                   f.write("\n".join(changed_files))
-        shell: python
 
       - name: Commit ve push değişen dosyalar
+        shell: bash
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
-          # Hem changed_files.txt hem de listedeki domain dosyalarını ekle
-          git add changed_files.txt $(cat changed_files.txt || true)
+          if [ -f changed_files.txt ]; then
+            files=$(cat changed_files.txt)
+            git add changed_files.txt $files
+          fi
 
-          # Sadece değişiklik varsa commit ve push yap
+          # Sadece değişiklik varsa commit ve push
           if ! git diff --cached --quiet; then
             git commit -m "Domain linkleri güncellendi"
             git push
