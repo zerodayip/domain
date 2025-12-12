@@ -24,7 +24,8 @@ jobs:
       - name: Domain linklerini kontrol et ve güncelle
         shell: python
         run: |
-          import os, requests
+          import os
+          import requests
 
           changed_files = []
 
@@ -37,7 +38,6 @@ jobs:
               except requests.RequestException:
                   return None
 
-          # Mevcut txt dosyalarını kontrol et
           for fname in os.listdir("."):
               if not fname.endswith(".txt") or fname in ["hesapkontrol.txt", "hdfilmcehennemi.txt"]:
                   continue
@@ -53,7 +53,7 @@ jobs:
               domain_name = os.path.splitext(fname)[0].capitalize()
 
               if final is None:
-                  print(f"{domain_name}\n❌ Domain kapanmış olabilir, yönlendirme veya domaine erişim yok.\nKontrol edilmesi gerekiyor.\nURL: {url}\n")
+                  print(f"{domain_name}\n❌ Domain kapanmış olabilir, yönlendirme veya domaine erişim yok.\nURL: {url}\n")
                   continue
 
               normalized_final = final.rstrip("/")
@@ -67,7 +67,7 @@ jobs:
               else:
                   print(f"{domain_name}\n✅ Domain hala geçerlidir.\nURL: {url}\n")
 
-          # 🔹 hdfilmcehennemi kontrolü
+          # hdfilmcehennemi kontrolü
           hdfilmcehennemi_url = "https://hdfilmcehennemi.download/download/"
           hdfilmcehennemi_final = resolve_final_url(hdfilmcehennemi_url)
 
@@ -79,7 +79,6 @@ jobs:
           else:
               print("HDFilmCehennemi URL erişilemedi veya yönlendirme tespit edilemedi.")
 
-          # Değişen dosyaları kaydet
           if changed_files:
               with open("changed_files.txt", "w", encoding="utf-8") as f:
                   f.write("\n".join(changed_files))
@@ -95,7 +94,6 @@ jobs:
               git add changed_files.txt $files
           fi
 
-          # Sadece değişiklik varsa commit ve push
           if ! git diff --cached --quiet; then
               git commit -m "Domain linkleri güncellendi"
               git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git HEAD:main
