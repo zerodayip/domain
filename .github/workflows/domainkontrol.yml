@@ -30,7 +30,7 @@ jobs:
 
           def resolve_final_url(url):
               try:
-                  r = requests.get(url, allow_redirects=True, timeout=10)
+                  r = requests.get(url, allow_redirects=True, timeout=10, stream=True)
                   final = r.url
                   r.close()
                   return final
@@ -67,7 +67,7 @@ jobs:
               else:
                   print(f"{domain_name}\n✅ Domain hala geçerlidir.\nURL: {url}\n")
 
-          # 🔹 Yeni eklenen kısım: hdfilmcehennemi yönlendirmesini kontrol et
+          # 🔹 hdfilmcehennemi kontrolü
           hdfilmcehennemi_url = "https://hdfilmcehennemi.download/download/"
           hdfilmcehennemi_final = resolve_final_url(hdfilmcehennemi_url)
 
@@ -81,7 +81,7 @@ jobs:
 
           # Değişen dosyaları kaydet
           if changed_files:
-              with open("changed_files.txt", "w") as f:
+              with open("changed_files.txt", "w", encoding="utf-8") as f:
                   f.write("\n".join(changed_files))
         shell: python
 
@@ -91,6 +91,7 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
-          git add $(cat changed_files.txt)
+          # Hem changed_files.txt hem de listedeki domain dosyalarını ekle
+          git add changed_files.txt $(cat changed_files.txt)
           git commit -m "Domain linkleri güncellendi"
           git push
