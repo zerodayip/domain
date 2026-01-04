@@ -109,6 +109,7 @@ jobs:
           print("\n=== DIZIPAL2 ===")
           domain_url3 = "https://raw.githubusercontent.com/zerodayip/domain/refs/heads/main/dizipal2.txt"
           domain3 = requests.get(domain_url3).text.strip()
+          print(f"🌐 {domain3}")
 
           url3 = f"{domain3}/"
           headers3 = {
