@@ -63,7 +63,7 @@ jobs:
           response = safe_get(url, headers)
           if response and response.status_code == 200:
               soup = BeautifulSoup(response.text, "html.parser")
-              message += f"\n🌐 {domain}\n"
+              message += f"\n🌐 DIZIPALL \n"
               items = soup.find_all("div", class_="filter-result-box")
               for item in items:
                   title = item.find("h2").get_text(strip=True) if item.find("h2") else "BİLİNMİYOR"
@@ -75,7 +75,7 @@ jobs:
                           year = p.get_text(strip=True)
                   message += f"{title} - {year}\n"
           else:
-              message += f"\n❌ {domain} ulaşılamıyor (site kapanmış olabilir).\n"
+              message += f"\n❌ DIZIPALL ulaşılamıyor (site kapanmış olabilir).\n"
 
           # ------------------- DIZIYIIZLE -------------------
           domain_url2 = "https://raw.githubusercontent.com/zerodayip/domain/refs/heads/main/diziyiizle.txt"
@@ -86,7 +86,7 @@ jobs:
           response2 = safe_get(url2, headers2)
           if response2 and response2.status_code == 200:
               soup2 = BeautifulSoup(response2.text, "html.parser")
-              message += f"\n🌐 {domain2}\n"
+              message += f"\n🌐 DIZIYIIZLE \n"
               cards = soup2.select("#seriesGrid a")
               for card in cards:
                   img = card.find("img")
@@ -99,7 +99,7 @@ jobs:
                           year = span.get_text(strip=True)
                   message += f"{title} - {year}\n"
           else:
-              message += f"\n❌ {domain2} ulaşılamıyor (site kapanmış olabilir).\n"
+              message += f"\n❌ DIZIYIIZLE ulaşılamıyor (site kapanmış olabilir).\n"
 
           # ------------------- DIZIPAL2 -------------------
           domain_url3 = "https://raw.githubusercontent.com/zerodayip/domain/refs/heads/main/dizipal2.txt"
@@ -114,7 +114,7 @@ jobs:
           if response3 and response3.status_code == 200:
               soup3 = BeautifulSoup(response3.text, "html.parser")
               target_div = soup3.find("div", {"class": "aa-cn", "id": "widget_list_movies_series-2-aa-movies"})
-              message += f"\n🌐 {domain3}\n"
+              message += f"\n🌐 DIZIPAL2 \n"
               if target_div:
                   titles = target_div.find_all("h2", class_="entry-title")
                   for title in titles:
@@ -122,7 +122,7 @@ jobs:
               else:
                   message += "Div bulunamadı.\n"
           else:
-              message += f"\n❌ {domain3} ulaşılamıyor (site kapanmış olabilir).\n"
+              message += f"\n❌ DIZIPAL2 ulaşılamıyor (site kapanmış olabilir).\n"
 
           # Telegram'a gönder
           send_telegram(message)
